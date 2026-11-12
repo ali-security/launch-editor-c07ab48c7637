@@ -96,9 +96,11 @@ function launchEditor (file, specifiedEditor, onErrorCallback) {
     return
   }
 
+  let fileArgument = path.resolve(fileName)
+
   if (
     process.platform === 'linux' &&
-    fileName.startsWith('/mnt/') &&
+    fileArgument.startsWith('/mnt/') &&
     /Microsoft/i.test(os.release())
   ) {
     // Assume WSL / "Bash on Ubuntu on Windows" is being used, and
@@ -107,14 +109,14 @@ function launchEditor (file, specifiedEditor, onErrorCallback) {
     // build of WSL, see: https://github.com/Microsoft/BashOnWindows/issues/423#issuecomment-221627364
     // When a Windows editor is specified, interop functionality can
     // handle the path translation, but only if a relative path is used.
-    fileName = path.relative('', fileName)
+    fileArgument = `./${path.relative('', fileArgument)}`
   }
 
   if (lineNumber) {
-    const extraArgs = getArgumentsForPosition(editor, fileName, lineNumber, columnNumber)
+    const extraArgs = getArgumentsForPosition(editor, fileArgument, lineNumber, columnNumber)
     args.push.apply(args, extraArgs)
   } else {
-    args.push(fileName)
+    args.push(fileArgument)
   }
 
   if (process.platform === 'win32') {
